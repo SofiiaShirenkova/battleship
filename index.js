@@ -225,11 +225,11 @@ class InvaderProjectile {
     }
 }
 
-const player = new Player()
-const projectiles = []
-const grids = [] //создаём массив из нескольких сеток
-const invaderProjectiles = []
-const particles = []
+let player
+let projectiles
+let grids //создаём массив из нескольких сеток
+let invaderProjectiles
+let particles
 
 const keys = { //отследивание клавиш -- нажата? проигрывам! не нажата? стопаемся!
     a: {
@@ -243,29 +243,44 @@ const keys = { //отследивание клавиш -- нажата? прои
     }
 }
 
-let frames = 0
-let randomInterval = Math.floor(Math.random() * 500 + 1100) //создание второго грида с захватчиками
-let game = {
-    over: false,
-    active: true
+let frames
+let randomInterval //создание второго грида с захватчиками
+let game
+let score
+
+function newGame(){
+    player = new Player()
+    projectiles = []
+    grids = []
+    invaderProjectiles = []
+    particles = []
+    frames = 0
+    randomInterval = Math.floor(Math.random() * 500 + 1100)
+    game = {
+        over: false,
+        active: true
+    }
+    score = 0
+    console.log(game.active)
+    //звёзды на бэкграунде
+    for(let i = 0; i < 100; i++) {
+        particles.push(new Particle({
+            position:{ //рандомное расположение звёзд на фоне по оси х и y
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height
+            }, 
+            velocity: {
+                x: 0,
+                y: 0.2 //опускаются по оси х -- скорость
+            },
+            radius: Math.random() * 2,
+            color:'white'
+    }))}
+    animationId = setInterval(animate, 15)
+
 }
-let score = 0
 
-//звёзды на бэкграунде
-for(let i = 0; i < 100; i++) {
-    particles.push(new Particle({
-        position:{ //рандомное расположение звёзд на фоне по оси х и y
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height
-        }, 
-        velocity: {
-            x: 0,
-            y: 0.2 //опускаются по оси х -- скорость
-        },
-        radius: Math.random() * 2,
-        color:'white'
-}))}
-
+newGame()
 function createParticles({object, color, fades})  {
     //ЧАСТИЦЫ РАЗЛЕТАЮТСЯ ПРИ УДАРЕ корабля с ПУЛЬКОЙ
     for(let i = 0; i < 15; i++) {
@@ -285,8 +300,9 @@ function createParticles({object, color, fades})  {
 }
 
 function animate () {
-    if (!game.active) return //если игра не активна -- весь последующий код не активируется
-    requestAnimationFrame(animate)
+    //if (!game.active) return //если игра не активна -- весь последующий код не активируется
+    console.log('jdrgdnhjooern')
+    //animationId = requestAnimationFrame(animate)
     c.fillStyle = 'black' 
     c.fillRect(0, 0, canvas.width, canvas.height)
     player.update()
@@ -328,22 +344,20 @@ function animate () {
         ) { 
             console.log('you lose')
 
-            setTimeout(() => { //при попадании в игрока снаряд исчезает
-                invaderProjectiles.splice(index, 1)    
-                player.opacity = 0
-                game.over = true
-            }, 0)
+            //при попадании в игрока снаряд исчезает
+            invaderProjectiles.splice(index, 1)    
+            player.opacity = 0
+            game.over = true
 
-            setTimeout(() => { 
-                game.active = false
-            }, 2000) //игра анимируется в теч 2 сек после проигрыша
+
+            game.active = false
 
             createParticles({
                 object: player,
                 color: '#00FF00',
                 fades: true
             })
-
+            clearTimeout(animationId)
             endScreenSpace()
         }
     })
@@ -443,7 +457,6 @@ function animate () {
     frames++ //значик, что мы прошли один цикл нашей анимации (добавили + 1 кадр)
 }
 
-animate()
 
 //({}) -- деструктурирование объекта
 addEventListener('keydown', ({ key }) => {
@@ -507,17 +520,17 @@ function endScreenSpace() {
     state = 'deathscreen'
     let ess = document.getElementById("endScreenSpace");
     ess.style.display="flex"; 
-    let cl = document.getElementById("close");
+    let cl = document.getElementById("close3");
     cl.style.display="flex";
 }
 
-newGame()
+
 function closeDeathscreen(){
     let spaceCanvas = document.getElementById("spaceCanvas");
     spaceCanvas.style.display="block";
     let ess = document.getElementById("endScreenSpace");
     ess.style.display="none";
-    let cl = document.getElementById("close");
+    let cl = document.getElementById("close3");
     cl.style.display="none";
     
     p2.style.color="white";
